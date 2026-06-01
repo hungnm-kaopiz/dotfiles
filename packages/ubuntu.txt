@@ -1,0 +1,20 @@
+# Core bootstrap packages for Ubuntu/Debian.
+build-essential
+curl
+fzf
+git
+git-delta
+gh
+ncdu
+procps
+ripgrep
+unzip
+htop
+jq
+zoxide
+zsh
+
+# Modern CLI replacements
+bat
+fd-find
+trash-cli

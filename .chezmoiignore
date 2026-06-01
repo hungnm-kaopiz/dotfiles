@@ -1,0 +1,5 @@
+packages/
+.gitignore
+install.sh
+~/.zprofile
+~/.zshrc

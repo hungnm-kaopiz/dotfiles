@@ -1,0 +1,83 @@
+#!/bin/bash
+{{- if eq .chezmoi.osRelease.id "ubuntu" }}
+set -uo pipefail
+
+ROOT="{{ .chezmoi.workingTree }}"
+TMPDIRS=()
+cleanup() { rm -rf "${TMPDIRS[@]+"${TMPDIRS[@]}"}"; }
+trap cleanup EXIT
+
+# shellcheck source=scripts/install-common.sh
+source "${ROOT}/scripts/install-common.sh"
+
+# Docker
+if ! command -v docker >/dev/null 2>&1; then
+  run_step "install docker" bash -c '
+    sudo apt-get install -y ca-certificates curl gnupg &&
+    sudo install -m 0755 -d /etc/apt/keyrings &&
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg &&
+    sudo chmod a+r /etc/apt/keyrings/docker.gpg &&
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null &&
+    sudo apt-get update &&
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin &&
+    sudo usermod -aG docker "$USER"
+  '
+fi
+
+# CLI tools (curl|bash — trusted upstream installers)
+if ! command -v atuin >/dev/null 2>&1; then
+  run_step "install atuin" bash -c 'curl -fsSL https://raw.githubusercontent.com/atuinsh/atuin/main/install.sh | bash'
+fi
+if ! command -v starship >/dev/null 2>&1; then
+  run_step "install starship" bash -c 'curl -fsSL https://starship.rs/install.sh | sh -s -- -y'
+fi
+
+
+install_lazygit
+install_lazydocker
+
+# Monaspace NerdFonts
+font_dir="${XDG_DATA_HOME:-$HOME/.local/share}/fonts"
+
+if [ ! -d "$font_dir/Monaspace" ] || [ -z "$(find "$font_dir/Monaspace" -name '*.otf' -o -name '*.ttf' 2>/dev/null)" ]; then
+  d="$(mktemp -d)"
+  TMPDIRS+=("$d")
+
+  run_step "install Monaspace NerdFonts" bash -c '
+    url=$(curl -fsSL https://api.github.com/repos/githubnext/monaspace/releases/latest |
+      python3 -c "
+import json, sys
+release=json.load(sys.stdin)
+print(next(
+    a[\"browser_download_url\"]
+    for a in release[\"assets\"]
+    if \"nerdfonts\" in a[\"name\"].lower() and a[\"name\"].endswith(\".zip\")
+))
+")
+
+    curl -fsSL "$url" -o "'"$d"'/monaspace.zip" &&
+    unzip -q "'"$d"'/monaspace.zip" -d "'"$d"'/monaspace" &&
+    mkdir -p "'"$font_dir"'/Monaspace" &&
+    find "'"$d"'/monaspace" \
+      \( -name "*.otf" -o -name "*.ttf" \) \
+      -exec cp {} "'"$font_dir"'/Monaspace/" \; &&
+    fc-cache -f
+  '
+fi
+
+# mise
+if ! command -v mise >/dev/null 2>&1; then
+  run_step "install mise" bash -c 'curl -fsSL https://mise.run | sh'
+fi
+if command -v mise >/dev/null 2>&1; then
+  run_step "mise global node@lts" mise use --global node@lts
+  run_step "mise global bun@latest" mise use --global bun@latest
+  run_step "mise global @antfu/ni" mise use --global npm:@antfu/ni
+  run_step "mise settings (node)" mise settings add idiomatic_version_file_enable_tools node
+  run_step "mise settings (npm)" mise settings add idiomatic_version_file_enable_tools npm
+fi
+
+echo ""
+echo "Dev tools setup complete."
+
+{{- end }}

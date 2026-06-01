@@ -1,0 +1,40 @@
+# Core
+clipboard-trim-trailing-spaces = false
+shell-integration-features = no-title
+window-colorspace = display-p3
+# Window
+window-padding-x = 12
+window-padding-y = 9
+window-padding-balance = true
+window-inherit-working-directory = true
+# Background
+background-opacity = 0.94
+background-blur = 16
+# Theme
+theme = Havn Skumring
+bold-color = #cdd6f4
+# Font
+font-family = "Monaspace Neon NF"
+font-size = 15
+font-thicken = true
+font-thicken-strength = 60
+font-feature = -calt
+font-feature = -liga
+font-feature = -dlig
+font-shaping-break = cursor
+font-codepoint-map = U+4E00-U+9FFF,U+3400-U+4DBF,U+3000-U+303F,U+FF00-U+FFEF=LXGW WenKai Mono
+# Cursor
+cursor-style = block
+cursor-style-blink = true
+cursor-color = cell-foreground
+# Selection / mouse
+selection-clear-on-typing = true
+right-click-action = copy-or-paste
+mouse-hide-while-typing = true
+# Keybinds
+keybind = ctrl+enter=text:gst\n
+keybind = shift+enter=text:\n
+# Shader
+# custom-shader = ./shaders/bloom.glsl
+custom-shader = ./shaders/cursor-matrix.glsl
+custom-shader-animation = true

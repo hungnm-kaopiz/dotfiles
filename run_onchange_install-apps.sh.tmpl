@@ -1,0 +1,158 @@
+#!/bin/bash
+{{- if eq .chezmoi.osRelease.id "ubuntu" }}
+set -uo pipefail
+
+ROOT="{{ .chezmoi.workingTree }}"
+TMPDIRS=()
+cleanup() { rm -rf "${TMPDIRS[@]+"${TMPDIRS[@]}"}"; }
+trap cleanup EXIT
+
+# shellcheck source=scripts/install-common.sh
+source "${ROOT}/scripts/install-common.sh"
+
+# fcitx5-lotus (Vietnamese) — https://lotusinputmethod.github.io/
+if ! command -v fcitx5 >/dev/null 2>&1; then
+  run_step "install fcitx5-lotus" bash -c '
+    CODENAME=$(grep "^UBUNTU_CODENAME=" /etc/os-release | cut -d"=" -f2) &&
+    sudo mkdir -p /etc/apt/keyrings &&
+    curl -fsSL https://fcitx5-lotus.pages.dev/pubkey.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/fcitx5-lotus.gpg &&
+    echo "deb [signed-by=/etc/apt/keyrings/fcitx5-lotus.gpg] https://fcitx5-lotus.pages.dev/apt/$CODENAME $CODENAME main" | sudo tee /etc/apt/sources.list.d/fcitx5-lotus.list &&
+    sudo apt-get update &&
+    sudo apt-get install -y fcitx5-lotus &&
+    (sudo systemctl enable --now fcitx5-lotus-server@$(whoami).service ||
+      (sudo systemd-sysusers && sudo systemctl enable --now fcitx5-lotus-server@$(whoami).service))
+  '
+fi
+if command -v fcitx5 >/dev/null 2>&1; then
+  if systemctl list-unit-files "fcitx5-lotus-server@*.service" 2>/dev/null | grep -q fcitx5-lotus-server; then
+    run_step "enable fcitx5-lotus-server" bash -c '
+      sudo systemctl enable --now fcitx5-lotus-server@$(whoami).service 2>/dev/null || true
+    '
+  fi
+  if command -v im-config >/dev/null 2>&1; then
+    run_step "configure fcitx5 (im-config)" im-config -n fcitx5
+  fi
+  run_step "fcitx5 autostart" bash -c '
+    mkdir -p "$HOME/.config/autostart" &&
+    cp -f /usr/share/applications/org.fcitx.Fcitx5.desktop "$HOME/.config/autostart/"
+  '
+fi
+
+# Ghostty
+if ! command -v ghostty >/dev/null 2>&1; then
+  if apt-cache show ghostty >/dev/null 2>&1; then
+    run_step "apt install ghostty" sudo apt-get install -y ghostty
+  else
+    run_step "install ghostty (PPA)" bash -c '
+      sudo add-apt-repository -y ppa:mkasberg/ghostty-ubuntu &&
+      sudo apt-get update &&
+      sudo apt-get install -y ghostty
+    '
+  fi
+fi
+
+# Flameshot (screenshot tool) — https://flameshot.org/
+if ! command -v flameshot >/dev/null 2>&1; then
+  run_step "add flameshot PPA" sudo add-apt-repository -y ppa:flameshot-team/stable
+  run_step "apt update" sudo apt-get update
+  run_step "install flameshot" sudo apt-get install -y flameshot
+fi
+
+# Visual Studio Code
+if ! command -v code >/dev/null 2>&1; then
+  run_step "install vscode" bash -c '
+    sudo apt-get install -y wget gpg &&
+    wget -qO- https://packages.microsoft.com/keys/microsoft.asc |
+      gpg --dearmor |
+      sudo tee /usr/share/keyrings/microsoft.gpg > /dev/null &&
+    sudo tee /etc/apt/sources.list.d/vscode.sources > /dev/null <<EOF
+Types: deb
+URIs: https://packages.microsoft.com/repos/code
+Suites: stable
+Components: main
+Architectures: amd64,arm64,armhf
+Signed-By: /usr/share/keyrings/microsoft.gpg
+EOF
+    sudo apt-get update &&
+    sudo apt-get install -y code
+  '
+fi
+
+
+# Desktop apps
+if command -v gnome-extensions >/dev/null 2>&1; then
+  run_step "apt install gnome-shell-extensions" sudo apt-get install -y gnome-shell-extensions
+
+  if ! command -v extension-manager >/dev/null 2>&1; then
+    run_step "snap install extension-manager" sudo snap install extension-manager
+  fi
+
+  if ! command -v postman >/dev/null 2>&1; then
+    run_step "snap install postman" sudo snap install postman
+  fi
+
+  # Copyous GNOME extension dependencies
+  run_step "install Copyous dependencies" sudo apt-get install -y \
+    gir1.2-gda-5.0 \
+    gir1.2-gsound-1.0
+
+  # Copyous GNOME extension
+  if ! gnome-extensions list 2>/dev/null | grep -q "copyous@boerdereinar.dev"; then
+    run_step "install Copyous GNOME extension" bash -c "
+      d=\$(mktemp -d) &&
+      shell_ver=\$(gnome-shell --version | awk '{print \$3}') &&
+      curl -fsSL \
+        \"https://extensions.gnome.org/download-extension/copyous@boerdereinar.dev.shell-extension.zip?shell_version=\${shell_ver}\" \
+        -o \"\$d/copyous.zip\" &&
+      gnome-extensions install -f \"\$d/copyous.zip\"
+    "
+  fi
+
+  run_step "enable Copyous GNOME extension" \
+    gnome-extensions enable copyous@boerdereinar.dev
+fi
+
+# Zed
+if ! command -v zed >/dev/null 2>&1; then
+  run_step "install zed" bash -c 'curl -fsSL https://zed.dev/install.sh | ZED_CHANNEL=preview sh'
+fi
+
+# Cursor
+if ! command -v cursor >/dev/null 2>&1; then
+  sudo curl -fsSL https://downloads.cursor.com/keys/anysphere.asc \
+  | sudo gpg --dearmor -o /etc/apt/keyrings/cursor.gpg
+
+  echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/cursor.gpg] https://downloads.cursor.com/aptrepo stable main" \
+    | sudo tee /etc/apt/sources.list.d/cursor.list
+
+  sudo apt update
+  sudo apt install cursor
+fi
+
+# Google Chrome
+if ! command -v google-chrome >/dev/null 2>&1; then
+  run_step "install google-chrome" bash -c "
+    d=\$(mktemp -d) &&
+    arch=\$(dpkg --print-architecture) &&
+    curl -fsSL \"https://dl.google.com/linux/direct/google-chrome-stable_current_\${arch}.deb\" -o \"\$d/chrome.deb\" &&
+    sudo dpkg -i \"\$d/chrome.deb\" || sudo apt-get install -f -y
+  "
+fi
+
+# DBeaver CE
+if ! command -v dbeaver >/dev/null 2>&1; then
+  run_step "install dbeaver-ce" bash -c '
+    sudo wget -q -O - https://dbeaver.io/debs/dbeaver.gpg.key |
+      sudo gpg --dearmor -o /usr/share/keyrings/dbeaver.gpg.key &&
+    echo "deb [signed-by=/usr/share/keyrings/dbeaver.gpg.key] https://dbeaver.io/debs/dbeaver-ce /" |
+      sudo tee /etc/apt/sources.list.d/dbeaver.list &&
+    sudo apt-get update &&
+    sudo apt-get install -y dbeaver-ce
+  '
+fi
+
+
+echo ""
+echo "Apps setup complete. Log out and back in for group changes (docker, fcitx5) to take effect."
+
+{{- end }}
