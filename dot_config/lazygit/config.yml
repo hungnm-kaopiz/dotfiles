@@ -26,6 +26,6 @@ gui:
       - "#ffffff"
 
 git:
-  pagers:
-    - colorArg: always
-      pager: delta --dark --paging=never --line-numbers --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"
+  paging:
+    colorArg: always
+    pager: delta --dark --syntax-theme="Dracula" --paging=never --line-numbers --hyperlinks --hyperlinks-file-link-format="lazygit-edit://{path}:{line}"

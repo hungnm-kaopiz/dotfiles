@@ -1,0 +1,11 @@
+{
+	"bash": {
+		"deniedCommands": [
+			"rm -rf",
+			"git push --force",
+			"sudo",
+			"DROP TABLE",
+			"truncate"
+		]
+	}
+}

@@ -29,6 +29,10 @@ export PAGER="${PAGER:-less}"
 export EDITOR="${EDITOR:-vi}"
 export VISUAL="${VISUAL:-$EDITOR}"
 
+# Claude
+export CLAUDE_CODE_AUTO_COMPACT_WINDOW=100000
+export CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=95
+
 typeset -U path PATH
 
 [[ -d "$HOME/.local/bin" ]] && path=("$HOME/.local/bin" $path)
@@ -91,6 +95,10 @@ alias mkdir='mkdir -vp'
 alias lg='lazygit'
 alias ld='lazydocker'
 alias cc='claude --permission-mode bypassPermissions'
+alias cx='codex --dangerously-bypass-approvals-and-sandbox'
+alias hd="herdr"
+alias cc1='CLAUDE_CONFIG_DIR=~/.claude-account1 claude --permission-mode bypassPermissions'
+alias cc2='CLAUDE_CONFIG_DIR=~/.claude-account2 claude --permission-mode bypassPermissions'
 
 if command -v bat >/dev/null 2>&1; then
   alias cat='bat --paging=never'
