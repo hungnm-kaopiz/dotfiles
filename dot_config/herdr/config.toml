@@ -1,0 +1,103 @@
+onboarding = false
+
+[keys]
+prefix = "ctrl+b"
+
+focus_pane_left = "prefix+h"
+focus_pane_down = "prefix+j"
+focus_pane_up = "prefix+k"
+focus_pane_right = "prefix+l"
+
+swap_pane_left = "prefix+shift+h"
+swap_pane_down = "prefix+shift+j"
+swap_pane_up = "prefix+shift+k"
+swap_pane_right = "prefix+shift+l"
+
+split_vertical = "prefix+v"
+split_horizontal = "prefix+minus"
+
+new_tab = "prefix+c"
+next_tab = "prefix+n"
+previous_tab = "prefix+p"
+close_tab = "prefix+shift+x"
+
+zoom = "prefix+z"
+detach = "prefix+q"
+help = "prefix+?"
+
+next_agent = "prefix+alt+n"
+previous_agent = "prefix+alt+p"
+focus_agent = "prefix+alt+1..9"
+
+[[keys.command]]
+key = "prefix+w"
+description = "New worktree workspace (Claude Code + shell)"
+command = "herdr worktree create --prompt --open --tabs claude,shell"
+
+[[keys.command]]
+key = "prefix+shift+w"
+description = "New worktree workspace (shell only, launch claude manually)"
+command = "herdr worktree create --prompt --open --tabs shell"
+
+[[keys.command]]
+key = "prefix+g"
+type = "popup"
+command = "lazygit"
+width = "85%"
+height = "85%"
+
+[[keys.command]]
+key = "prefix+shift+c"
+command = "herdr pane split --direction right --run codex"
+
+[[keys.command]]
+key = "prefix+shift+u"
+command = "herdr pane split --direction right --run cursor-agent"
+
+[theme]
+name = "catppuccin"
+
+[theme.custom]
+accent = "#89b4fa"
+panel_bg = "#181825"
+
+[ui]
+sidebar_width = 32
+agent_panel_sort = "priority"
+host_cursor = "native"
+
+[ui.toast]
+delivery = "herdr"
+delay_seconds = 1
+
+[ui.toast.herdr]
+position = "top-right"
+
+[ui.sound]
+enabled = true
+
+[ui.sidebar.agents]
+rows = [
+	[
+		"state_icon",
+		"agent",
+		"state_text",
+	],
+	[
+		"workspace",
+		"tab",
+	],
+	[
+		"terminal_title_stripped",
+	],
+]
+
+[terminal]
+default_shell = ""
+new_cwd = "follow"
+
+[worktrees]
+directory = "~/.herdr/worktrees"
+
+[advanced]
+scrollback_limit_bytes = 20000000
