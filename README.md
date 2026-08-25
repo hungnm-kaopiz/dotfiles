@@ -7,7 +7,7 @@ Ubuntu developer dotfiles managed with [chezmoi](https://www.chezmoi.io/).
 On a fresh Ubuntu machine:
 
 ```bash
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply hungnm-kaopiz/dotfiles
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply --source "$HOME/dotfiles" hungnm-kaopiz/dotfiles
 ```
 
 This will:

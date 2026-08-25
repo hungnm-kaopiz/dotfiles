@@ -30,7 +30,7 @@
 	},
 	"show_signature_help_after_edits": true,
 	"auto_signature_help": true,
-	"redact_private_values": true,
+	"redact_private_values": false,
 	"cli_default_open_behavior": "new_window",
 	"session": {
 		"trust_all_worktrees": true,
@@ -53,8 +53,8 @@
 	"extend_comment_on_newline": false,
 	"theme": "Ayu Mirage",
 	"when_closing_with_no_tabs": "keep_window_open",
-	"buffer_font_family": "MonoLisa",
-	"ui_font_family": "MonoLisa",
+	"buffer_font_family": "Monaspace Neon NF",
+	"ui_font_family": "Monaspace Neon NF",
 	"cursor_shape": "bar",
 	"cursor_blink": true,
 	"use_system_window_tabs": true,
@@ -112,21 +112,12 @@
 	"languages": {
 		"Rust": {
 			"enable_language_server": true,
-			"language_servers": [
-				"rust-analyzer"
-			],
+			"language_servers": ["rust-analyzer"],
 		},
 	},
 	"file_types": {
-		"Dockerfile": [
-			"Dockerfile",
-			"Dockerfile.*"
-		],
-		"JSON": [
-			"json",
-			"jsonc",
-			"*.code-snippets"
-		],
+		"Dockerfile": ["Dockerfile", "Dockerfile.*"],
+		"JSON": ["json", "jsonc", "*.code-snippets"],
 	},
 	"file_scan_exclusions": [
 		"**/.git",
