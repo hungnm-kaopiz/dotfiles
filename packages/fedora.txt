@@ -1,0 +1,22 @@
+# Core bootstrap packages for Fedora.
+gcc
+gcc-c++
+make
+curl
+fzf
+git
+git-delta
+gh
+ncdu
+procps-ng
+ripgrep
+unzip
+htop
+jq
+zoxide
+zsh
+
+# Modern CLI replacements
+bat
+fd-find
+trash-cli

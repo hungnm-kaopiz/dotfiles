@@ -3,3 +3,5 @@ packages/
 install.sh
 ~/.zprofile
 ~/.zshrc
+README.md
+scripts/

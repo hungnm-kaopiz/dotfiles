@@ -1,5 +1,5 @@
 #!/bin/bash
-{{- if eq .chezmoi.osRelease.id "ubuntu" }}
+{{- if or (eq .chezmoi.osRelease.id "ubuntu") (eq .chezmoi.osRelease.id "fedora") }}
 set -uo pipefail
 
 ROOT="{{ .chezmoi.workingTree }}"
@@ -12,6 +12,14 @@ source "${ROOT}/scripts/install-common.sh"
 
 # Docker
 if ! command -v docker >/dev/null 2>&1; then
+{{- if eq .chezmoi.osRelease.id "fedora" }}
+  run_step "install docker" bash -c '
+    sudo curl -fsSL https://download.docker.com/linux/fedora/docker-ce.repo -o /etc/yum.repos.d/docker-ce.repo &&
+    sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin &&
+    sudo systemctl enable --now docker &&
+    sudo usermod -aG docker "$USER"
+  '
+{{- else }}
   run_step "install docker" bash -c '
     sudo apt-get install -y ca-certificates curl gnupg &&
     sudo install -m 0755 -d /etc/apt/keyrings &&
@@ -22,6 +30,7 @@ if ! command -v docker >/dev/null 2>&1; then
     sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin &&
     sudo usermod -aG docker "$USER"
   '
+{{- end }}
 fi
 
 # CLI tools (curl|bash — trusted upstream installers)
@@ -30,6 +39,18 @@ if ! command -v atuin >/dev/null 2>&1; then
 fi
 if ! command -v starship >/dev/null 2>&1; then
   run_step "install starship" bash -c 'curl -fsSL https://starship.rs/install.sh | sh -s -- -y'
+fi
+if ! command -v claude >/dev/null 2>&1; then
+  run_step "install claude code (latest)" bash -c 'curl -fsSL https://claude.ai/install.sh | bash -s latest'
+fi
+if ! command -v cursor-agent >/dev/null 2>&1; then
+  run_step "install cursor agent" bash -c 'curl -fsSL https://cursor.com/install | bash'
+fi
+if ! command -v herdr >/dev/null 2>&1; then
+  run_step "install herdr" bash -c 'curl -fsSL https://herdr.dev/install.sh | sh'
+fi
+if ! command -v omp >/dev/null 2>&1; then
+  run_step "install omp" bash -c 'curl -fsSL https://omp.sh/install | sh -s -- --binary'
 fi
 
 
@@ -72,9 +93,14 @@ fi
 if command -v mise >/dev/null 2>&1; then
   run_step "mise global node@lts" mise use --global node@lts
   run_step "mise global bun@latest" mise use --global bun@latest
-  run_step "mise global @antfu/ni" mise use --global npm:@antfu/ni
+  run_step "mise global pnpm@latest" mise use --global pnpm@latest
   run_step "mise settings (node)" mise settings add idiomatic_version_file_enable_tools node
   run_step "mise settings (npm)" mise settings add idiomatic_version_file_enable_tools npm
+fi
+
+# pi (needs Node >= 22.19; uses mise node). Piping stdout skips its "Start pi now?" prompt.
+if ! command -v pi >/dev/null 2>&1 && command -v mise >/dev/null 2>&1; then
+  run_step "install pi" bash -c 'PATH="$HOME/.local/bin:$PATH" mise exec node@lts -- sh -c "curl -fsSL https://pi.dev/install.sh | sh" | cat'
 fi
 
 echo ""

@@ -1,0 +1,31 @@
+{{ if eq .chezmoi.osRelease.id "fedora" -}}
+#!/bin/bash
+set -uo pipefail
+
+ROOT="{{ .chezmoi.workingTree }}"
+TMPDIRS=()
+cleanup() { rm -rf "${TMPDIRS[@]+"${TMPDIRS[@]}"}"; }
+trap cleanup EXIT
+
+# shellcheck source=scripts/install-common.sh
+source "${ROOT}/scripts/install-common.sh"
+
+run_step "dnf upgrade" sudo dnf upgrade -y --refresh
+run_step "dnf install copr plugin" sudo dnf install -y 'dnf-command(copr)'
+run_step "dnf autoremove" sudo dnf autoremove -y
+run_step "dnf clean" sudo dnf clean all
+
+dnf_install_packages "${ROOT}/packages/fedora.txt"
+install_eza
+
+run_step "set locale" sudo localectl set-locale LANG=en_US.UTF-8
+if command -v zsh >/dev/null 2>&1 && [ "$(getent passwd "$USER" | cut -d: -f7)" != "$(command -v zsh)" ]; then
+  run_step "set default shell to zsh" sudo usermod -s "$(command -v zsh)" "$USER"
+fi
+
+mkdir -p "${XDG_STATE_HOME:-$HOME/.local/state}/zsh"
+
+echo ""
+echo "DNF setup complete."
+
+{{ end -}}
