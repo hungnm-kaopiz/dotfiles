@@ -1,5 +1,5 @@
+{{ if eq .chezmoi.osRelease.id "ubuntu" -}}
 #!/bin/bash
-{{- if eq .chezmoi.osRelease.id "ubuntu" }}
 set -uo pipefail
 
 ROOT="{{ .chezmoi.workingTree }}"
@@ -21,9 +21,14 @@ run_step "apt clean" sudo apt-get clean
 apt_install_packages "${ROOT}/packages/ubuntu.txt"
 install_eza
 
+# Ubuntu ships bat as `batcat`; aliases and fzf-tab previews call `bat`
+if ! command -v bat >/dev/null 2>&1 && command -v batcat >/dev/null 2>&1; then
+  run_step "link bat -> batcat" ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"
+fi
+
 run_step "set locale" sudo localectl set-locale LANG=en_US.UTF-8
-if [ "$SHELL" != "$(command -v zsh)" ]; then
-  run_step "set default shell to zsh" chsh -s "$(command -v zsh)"
+if command -v zsh >/dev/null 2>&1 && [ "$(getent passwd "$USER" | cut -d: -f7)" != "$(command -v zsh)" ]; then
+  run_step "set default shell to zsh" sudo usermod -s "$(command -v zsh)" "$USER"
 fi
 
 mkdir -p "${XDG_STATE_HOME:-$HOME/.local/state}/zsh"
@@ -31,4 +36,4 @@ mkdir -p "${XDG_STATE_HOME:-$HOME/.local/state}/zsh"
 echo ""
 echo "APT setup complete."
 
-{{- end }}
+{{ end -}}
