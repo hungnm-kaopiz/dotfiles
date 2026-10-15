@@ -16,7 +16,7 @@ This will:
 2. Apply all configs to `$HOME`
 3. Run the install scripts, in order:
    1. `10-install-apt` / `10-install-dnf`: system packages, eza, locale, zsh as login shell
-   2. `20-install-tools`: Docker, atuin, starship, lazygit, lazydocker, Claude Code, Cursor Agent, herdr, omp, Monaspace NerdFonts, mise (node, bun), pi
+   2. `20-install-tools`: Docker, atuin, starship, lazygit, lazydocker, Claude Code, Cursor Agent, herdr, omp, Monaspace NerdFonts, mise (node, bun, pnpm, uv), claude-swap, pi
    3. `30-install-apps`: fcitx5-lotus, Ghostty, Flameshot, VS Code, GNOME extras, Zed, Cursor, Orca, Chrome, DBeaver
 
 Each script is a `run_onchange_` script: it runs again only when its rendered content changes. A failed step
@@ -64,6 +64,9 @@ take effect.
 | **mise**       | Version manager (Node, Python, Go...)   | `mise.run`                         |
 | **Node LTS**   | JavaScript runtime                      | via mise                           |
 | **Bun**        | JavaScript runtime & toolkit            | via mise                           |
+| **pnpm**       | Node package manager                    | via mise                           |
+| **uv**         | Python package/tool manager             | via mise                           |
+| **claude-swap**| Claude Code multi-account switcher (`cswap`) | `uv tool install claude-swap` |
 | **starship**   | Prompt                                  | Official script                    |
 | **Claude Code**| AI coding agent (latest channel)        | Official script (`claude.ai/install.sh`) |
 | **Cursor Agent**| Cursor CLI agent (`agent`)             | Official script (`cursor.com/install`)   |

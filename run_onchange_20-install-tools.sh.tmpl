@@ -94,8 +94,14 @@ if command -v mise >/dev/null 2>&1; then
   run_step "mise global node@lts" mise use --global node@lts
   run_step "mise global bun@latest" mise use --global bun@latest
   run_step "mise global pnpm@latest" mise use --global pnpm@latest
+  run_step "mise global uv@latest" mise use --global uv@latest
   run_step "mise settings (node)" mise settings add idiomatic_version_file_enable_tools node
   run_step "mise settings (npm)" mise settings add idiomatic_version_file_enable_tools npm
+fi
+
+# claude-swap (Claude Code multi-account switcher, `cswap`; needs Python 3.12+ via uv)
+if ! command -v cswap >/dev/null 2>&1 && command -v mise >/dev/null 2>&1; then
+  run_step "install claude-swap" mise exec uv@latest -- uv tool install claude-swap
 fi
 
 # pi (needs Node >= 22.19; uses mise node). Piping stdout skips its "Start pi now?" prompt.
