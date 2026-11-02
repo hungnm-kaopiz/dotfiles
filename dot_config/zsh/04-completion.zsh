@@ -3,8 +3,19 @@ zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
 
 # Completions - ONCE, with cache
-zcompdump="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-${ZSH_VERSION}"
+zcompdump="$_zsh_cache_dir/zcompdump-${ZSH_VERSION}"
 mkdir -p "${zcompdump:h}"
+
+# Generated completions go in fpath; compinit autoloads them on first Tab.
+# compinit -C reuses the dump without rescanning fpath, so drop it when one changes.
+_zsh_comp_dir="$_zsh_cache_dir/functions"
+fpath=("$_zsh_comp_dir" $fpath)
+_zsh_gen_completion() {
+  _zsh_cmd_cache "$_zsh_comp_dir/_$1" "$@" && [[ $REPLY == new ]] && rm -f "$zcompdump"
+}
+_zsh_gen_completion omp completions zsh
+unfunction _zsh_gen_completion
+
 autoload -Uz compinit
 compinit -C -d "$zcompdump"
 
