@@ -1,0 +1,50 @@
+#!/bin/sh
+# Merge the keys below into ~/.claude/settings.json; Claude Code and tools like Orca own everything else (hooks, prompt state).
+set -e
+current=$(cat)
+[ -n "$current" ] || current='{}'
+printf '%s' "$current" | jq --indent 2 '. * $managed' --argjson managed "$(cat <<'JSON'
+{
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "model": "opus",
+  "modelSettings": {
+    "claude-sonnet-5-5": {
+      "effortLevel": "high"
+    },
+    "claude-opus-5-5": {
+      "effortLevel": "medium"
+    }
+  },
+  "theme": "dark",
+  "autoUpdatesChannel": "latest",
+  "statusLine": {
+    "type": "command",
+    "command": "ccstatusline",
+    "padding": 0,
+    "refreshInterval": 10
+  },
+  "enabledPlugins": {
+    "image-view@claude-image-view": true,
+    "skins@hellosverre-mods": true,
+    "mcp-image-viewer@anthropic-plugin-directory": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-image-view": {
+      "source": {
+        "source": "github",
+        "repo": "jarrodwatts/claude-image-view"
+      }
+    },
+    "hellosverre-mods": {
+      "source": {
+        "source": "github",
+        "repo": "hellosverre/claude-skins"
+      }
+    }
+  }
+}
+JSON
+)"

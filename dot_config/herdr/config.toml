@@ -67,8 +67,8 @@ agent_panel_sort = "priority"
 host_cursor = "native"
 
 [ui.toast]
-delivery = "system"
-delay_seconds = 0
+delivery = "herdr"
+delay_seconds = 1
 
 [ui.toast.herdr]
 position = "top-right"
