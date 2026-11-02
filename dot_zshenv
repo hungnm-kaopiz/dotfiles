@@ -12,3 +12,5 @@ export ZDOTDIR="${ZDOTDIR:-$XDG_CONFIG_HOME/zsh}"
 
 # User-local binaries (after .zshrc so tools like eza are found by Zinit plugins)
 [[ -d "$HOME/bin" ]] && export PATH="$HOME/bin:$PATH"
+
+[[ -f "$HOME/.atuin/bin/env" ]] && . "$HOME/.atuin/bin/env"
