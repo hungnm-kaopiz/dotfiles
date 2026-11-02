@@ -16,12 +16,12 @@ swap_pane_right = "prefix+shift+l"
 split_vertical = "prefix+v"
 split_horizontal = "prefix+minus"
 
-new_tab = "prefix+c"
+new_tab = "prefix+t"
 next_tab = "prefix+n"
 previous_tab = "prefix+p"
 close_tab = "prefix+shift+x"
 
-zoom = "prefix+z"
+zoom = "prefix+m"
 detach = "prefix+q"
 help = "prefix+?"
 
@@ -53,6 +53,36 @@ command = "herdr pane split --direction right --run codex"
 [[keys.command]]
 key = "prefix+shift+u"
 command = "herdr pane split --direction right --run cursor-agent"
+
+[[keys.command]]
+key = "prefix+c"
+description = "Open focused pane's cwd in VS Code"
+command = "sh -c 'code \"$(herdr pane current | jq -r .result.pane.cwd)\"'"
+
+[[keys.command]]
+key = "prefix+s"
+description = "Open focused pane's cwd in Cursor"
+command = "sh -c 'cursor \"$(herdr pane current | jq -r .result.pane.cwd)\"'"
+
+[[keys.command]]
+key = "prefix+z"
+description = "Open focused pane's cwd in Zed"
+command = "sh -c 'zed \"$(herdr pane current | jq -r .result.pane.cwd)\"'"
+
+[[keys.command]]
+key = "alt+shift+c"
+description = "Open focused pane's cwd in VS Code"
+command = "sh -c 'code \"$(herdr pane current | jq -r .result.pane.cwd)\"'"
+
+[[keys.command]]
+key = "alt+shift+z"
+description = "Open focused pane's cwd in Zed"
+command = "sh -c 'zed \"$(herdr pane current | jq -r .result.pane.cwd)\"'"
+
+[[keys.command]]
+key = "alt+shift+s"
+description = "Open focused pane's cwd in Cursor"
+command = "sh -c 'cursor \"$(herdr pane current | jq -r .result.pane.cwd)\"'"
 
 [theme]
 name = "catppuccin"
