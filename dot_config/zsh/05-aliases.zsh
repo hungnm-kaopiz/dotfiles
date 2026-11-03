@@ -28,5 +28,9 @@ if ! command -v fd >/dev/null 2>&1 && command -v fdfind >/dev/null 2>&1; then
   alias fd='fdfind'
 fi
 
+if ! command -v open >/dev/null 2>&1 && command -v xdg-open >/dev/null 2>&1; then
+  alias open='xdg-open'
+fi
+
 alias reload='exec zsh'
 alias path='print -rl -- $path'
