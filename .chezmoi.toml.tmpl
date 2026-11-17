@@ -1,6 +1,13 @@
 sourceDir = "{{ .chezmoi.homeDir }}/dotfiles"
 
-[data]
-    name = "Hùng Nguyễn Mạnh"
-    email = "hungnm@kaopiz.com"
-    github_user = "hungnm-kaopiz"
+# Git account data (names, emails, GitHub users, SSH key names, workspace dirs)
+# is deliberately NOT stored in this repo. It lives only in the generated local
+# config (~/.config/chezmoi/chezmoi.toml) under [data.git]; see README
+# ("Multi-account git") for the format.
+#
+# `chezmoi init` regenerates the local config from this template, so the
+# existing [data.git] table is carried over here instead of being lost.
+{{- if hasKey . "git" }}
+
+{{ dict "data" (dict "git" .git) | toToml }}
+{{- end }}

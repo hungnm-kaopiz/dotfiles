@@ -1,0 +1,17 @@
+{{- /* Context: one account map (see [data.git.accounts.*] in .chezmoi.toml.tmpl) */ -}}
+{{- if index . "email" }}
+[user]
+	name = {{ index . "name" | quote }}
+	email = {{ index . "email" | quote }}
+{{- with index . "github_user" }}
+
+[github]
+	user = {{ . | quote }}
+{{- end }}
+{{- with index . "ssh_key" }}
+
+[core]
+	# IdentitiesOnly: stops ssh-agent from offering another account's key first.
+	sshCommand = ssh -i ~/.ssh/{{ . }} -o IdentitiesOnly=yes
+{{- end }}
+{{- end }}

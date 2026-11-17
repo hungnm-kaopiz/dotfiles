@@ -22,6 +22,9 @@ This will:
 Each script is a `run_onchange_` script: it runs again only when its rendered content changes. A failed step
 prints a warning and the script carries on.
 
+**Git accounts**: the quick start applies everything except your git identities, because that data is
+local-only. Do the [first-run setup](#first-run-new-machine) below afterwards.
+
 **After the first run**: log out and back in so the `docker` group, fcitx5 and the Copyous GNOME extension
 take effect.
 
@@ -137,19 +140,103 @@ mise install            # install all tools from .mise.toml
 
 ## Customize
 
-- **Personal data**: edit `.chezmoi.toml.tmpl`
+- **Git accounts**: see [Multi-account git](#multi-account-git) (data is local-only, not in this repo)
 - **Shell**: edit files in [`dot_config/zsh/`](dot_config/zsh/)
 - **Machine-specific**: create `~/.config/zsh/local.zsh` (not in repo)
 - **Default tools**: edit mise section in `run_onchange_20-install-tools.sh.tmpl`
+
+## Multi-account git
+
+Accounts are applied per directory with `includeIf "gitdir:..."`, and each account
+pins its own SSH key (`core.sshCommand` + `IdentitiesOnly=yes`). Account details
+(names, emails, GitHub users, key names, directories) are **never committed**: they
+live only in `~/.config/chezmoi/chezmoi.toml`, which `chezmoi init` regenerates
+from `.chezmoi.toml.tmpl` while carrying the `[data.git]` table over.
+
+### First run (new machine)
+
+The quick start leaves you with no git identity, because the account data is local-only. Then:
+
+1. Create one SSH key per account and add each `.pub` to the matching GitHub account
+   (Settings → SSH and GPG keys):
+
+   ```sh
+   ssh-keygen -t ed25519 -C "you@example.com" -f ~/.ssh/id_ed25519_work
+   ```
+
+2. Create `~/.config/chezmoi/chezmoi.toml` with your real values (this file is local-only, never commit it):
+
+   ```toml
+   [data.git]
+   default = "work"                 # account used outside every `dir` below
+
+   [data.git.accounts.work]
+   dir = "~/work/"                  # repos under this dir use this account
+   name = "Your Name"
+   email = "you@example.com"
+   github_user = "your-github-user"
+   ssh_key = "id_ed25519_work"      # file name in ~/.ssh
+
+   [data.git.accounts.client]
+   dir = "~/client/"
+   name = "Your Name"
+   email = "you@client.example"
+   github_user = "your-other-user"
+   ssh_key = "id_ed25519_client"
+   ```
+
+3. Create the workspace directories (the `dir` of each account) and apply:
+
+   ```sh
+   mkdir -p ~/work ~/client
+   chezmoi apply
+   ```
+
+4. Check that each key authenticates as the right GitHub user:
+
+   ```sh
+   ssh -o IdentitiesOnly=yes -i ~/.ssh/id_ed25519_work -T git@github.com
+   ```
+
+### Add another account later
+
+1. Create a key and add its `.pub` to the new GitHub account (as in step 1 above).
+2. Append a block to `~/.config/chezmoi/chezmoi.toml` (the file is local, so no `chezmoi init` is needed):
+
+   ```toml
+   [data.git.accounts.another]
+   dir = "~/another/"
+   name = "Your Name"
+   email = "you@another.example"
+   github_user = "another-github-user"
+   ssh_key = "id_ed25519_another"
+   ```
+
+3. `mkdir -p ~/another && chezmoi apply`. The generator script re-runs because the data changed,
+   and `~/.gitconfig` gets a new `includeIf` for the directory.
+4. Clone into that directory and verify from inside the repo (the parent directory is not a repo, so
+   `git config` there shows the default account):
+
+   ```sh
+   cd ~/another && git clone git@github.com:<org>/<repo>.git
+   cd <repo>
+   git config --show-origin --get user.email
+   git config --get core.sshCommand
+   ```
+
+Repos cloned outside every account directory use the `default` account. Do not clone a repo into the
+wrong account directory: it would use that account's key and email.
 
 ## Layout
 
 ```
 dotfiles/
-├── .chezmoi.toml.tmpl                     # Template data (name, email, github_user)
+├── .chezmoi.toml.tmpl                     # Local config template (carries over local [data.git])
 ├── .chezmoiignore                         # Repo-only files (README, packages/, scripts/)
 ├── dot_zshenv                             # → ~/.zshenv (XDG + ZDOTDIR)
-├── dot_gitconfig.tmpl                     # → ~/.gitconfig
+├── dot_gitconfig.tmpl                     # → ~/.gitconfig (includeIf per account dir)
+├── .chezmoitemplates/git-account          # → shared per-account template (user, github, sshCommand)
+├── run_onchange_15-git-accounts.sh.tmpl   # Generates ~/.config/git/accounts/*.gitconfig from local data
 ├── dot_config/
 │   ├── zsh/
 │   │   ├── dot_zshrc                      # → Main entry (sources NN-*.zsh)

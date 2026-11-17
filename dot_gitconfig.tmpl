@@ -1,3 +1,7 @@
+# Default identity (the default account, see .chezmoi.toml.tmpl)
+[include]
+	path = ~/.config/git/accounts/{{ dig "git" "default" "default" . }}.gitconfig
+
 [color]
 	ui = true
 
@@ -36,7 +40,7 @@
 
 [core]
 	pager = delta
-	editor = vi
+	editor = zed --wait
 
 [interactive]
 	diffFilter = delta --color-only
@@ -64,9 +68,11 @@
 	hyperlinks = true
 	hyperlinks-file-link-format = "file://{path}"
 
-[github]
-	user = {{ .github_user | quote }}
+# Per-directory overrides. MUST stay at the end of the file: git uses the last value it reads.
+{{- range $name, $a := dig "git" "accounts" dict . }}
+{{- if and (index $a "dir") (index $a "email") }}
 
-[user]
-	name = {{ .name | quote }}
-	email = {{ .email | quote }}
+[includeIf "gitdir:{{ $a.dir }}"]
+	path = ~/.config/git/accounts/{{ $name }}.gitconfig
+{{- end }}
+{{- end }}

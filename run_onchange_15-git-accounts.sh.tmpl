@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Generates ~/.config/git/accounts/<account>.gitconfig from the local
+# [data.git.accounts.*] data, so account details never live in this repo.
+# Re-runs whenever that data changes (hash below).
+# accounts hash: {{ dig "git" "accounts" dict . | toJson | sha256sum }}
+set -euo pipefail
+
+dir="$HOME/.config/git/accounts"
+mkdir -p "$dir"
+rm -f "$dir"/*.gitconfig
+{{ range $name, $account := dig "git" "accounts" dict . }}
+cat > "$dir/{{ $name }}.gitconfig" <<'GIT_ACCOUNT_EOF'
+{{ template "git-account" $account }}
+GIT_ACCOUNT_EOF
+{{ end }}
