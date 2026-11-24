@@ -120,7 +120,7 @@ On Ubuntu, `bat` is installed as `batcat` and `fd` as `fdfind`; the setup links 
 | `~/.config/zed/`                      | Zed settings + keymap                  |
 | `~/.config/herdr/config.toml`         | herdr                                  |
 | `~/.config/inshellisense/rc.toml`     | inshellisense                          |
-| `~/.config/ccstatusline/settings.json`| Claude Code status line                |
+| `~/.config/claude/statusline.sh`      | Claude Code status line                |
 | `~/.gitconfig`                        | Git config (delta, templates)          |
 
 ## Daily use
@@ -255,7 +255,7 @@ dotfiles/
 │   ├── lazygit/config.yml                 # → Lazygit
 │   ├── starship.toml                      # → Starship prompt
 │   ├── zed/                               # → Zed
-│   ├── herdr/ inshellisense/ ccstatusline/
+│   ├── herdr/ inshellisense/ claude/
 ├── packages/
 │   ├── ubuntu.txt                         # Apt packages list
 │   └── fedora.txt                         # Dnf packages list

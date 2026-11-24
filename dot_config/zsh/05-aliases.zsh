@@ -5,7 +5,8 @@ alias mv='mv -iv'
 alias cp='cp -riv'
 alias mkdir='mkdir -vp'
 alias ld='lazydocker'
-alias cc='claude --permission-mode bypassPermissions'
+alias cc='claude --permission-mode auto'
+alias ccy='claude --permission-mode bypassPermissions'
 alias cx='codex --dangerously-bypass-approvals-and-sandbox'
 alias hd="herdr"
 

@@ -9,7 +9,7 @@ printf '%s' "$current" | jq --indent 2 '. * $managed' --argjson managed "$(cat <
     "commit": "",
     "pr": ""
   },
-  "model": "opus",
+  "model": "sonnet",
   "modelSettings": {
     "claude-sonnet-5-5": {
       "effortLevel": "high"
@@ -19,31 +19,19 @@ printf '%s' "$current" | jq --indent 2 '. * $managed' --argjson managed "$(cat <
     }
   },
   "theme": "dark",
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
+  },
   "autoUpdatesChannel": "latest",
   "statusLine": {
     "type": "command",
-    "command": "ccstatusline",
+    "command": "~/.config/claude/statusline.sh",
     "padding": 0,
     "refreshInterval": 10
   },
   "enabledPlugins": {
-    "image-view@claude-image-view": true,
-    "skins@hellosverre-mods": true,
     "mcp-image-viewer@anthropic-plugin-directory": true
-  },
-  "extraKnownMarketplaces": {
-    "claude-image-view": {
-      "source": {
-        "source": "github",
-        "repo": "jarrodwatts/claude-image-view"
-      }
-    },
-    "hellosverre-mods": {
-      "source": {
-        "source": "github",
-        "repo": "hellosverre/claude-skins"
-      }
-    }
   }
 }
 JSON

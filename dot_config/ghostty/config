@@ -52,7 +52,6 @@ macos-icon-screen-color = #11111b
 macos-icon-frame = aluminum
 
 # Keybinds
-keybind = ctrl+enter=text:gst\n
 keybind = shift+enter=text:\n
 
 # Shader
